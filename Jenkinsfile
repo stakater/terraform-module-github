@@ -30,13 +30,15 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
             done
           """
         }
+        
+        def version
 
         if(utils.isCD()) {
           stage('Tag and Release') {
             print "Generating New Version"
             
             def versionFile = ".version"
-            def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
 
             // Save new version
             sh """
