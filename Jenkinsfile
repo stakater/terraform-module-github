@@ -8,49 +8,62 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
     withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
 
       def utils = new io.fabric8.Utils()
+      def common = new io.stakater.Common()
       def slack = new io.stakater.notifications.Slack()
       def git = new io.stakater.vc.Git()
 
       // Slack variables
       def slackChannel = "${env.SLACK_CHANNEL}"
       def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
+
+      def modulesDirectory = "modules"
       
       try {
 
-        stage('Validate') {
+        stage('Validate Modules') {
           sh """
-            export GITHUB_TOKEN=\$GITHUB_AUTH_TOKEN
-
-            for dir in modules/*/
+            for dir in ${modulesDirectory}/*/
             do
-              echo \${dir}
               dir=\${dir%*/}
-              echo \${dir}
-              dir=\${dir##*/}
-              echo \${dir}
-              terraform validate modules/
+              terraform validate \${dir}
             done
-            sleep 2h
           """
         }
 
         if(utils.isCD()) {
-          stage('Plan and Apply') {
+          stage('Tag and Release') {
+            print "Generating New Version"
+            
+            def versionFile = ".version"
+            def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+
+            // Save new version
             sh """
-              export GITHUB_TOKEN=\$GITHUB_AUTH_TOKEN
-              
-              terraform plan
-              terraform apply -auto-approve
+              echo "${version}" > ${versionFile}
             """
 
-            git.commitChanges(WORKSPACE, "Update terraform state")
+            // Notify on JIRA
+            sh """
+                stk notify jira --comment "Version ${version} of ${repoName} has been successfully built and released."
+            """
+
+            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+
+            print "Pushing Tag ${version} to Git"
+            git.createTagAndPush(WORKSPACE, version)
+            git.createRelease(version)
           }
         }
 
         stage('Notify') {
-          slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [])
+          def slackFields = []
+          if (utils.isCD()) {
+            slackFields = [slack.createField("version", version, true)]
+          }
+          
+          slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, slackFields)
 
-          def commentMessage = "Terraform ${utils.isCD() ? "Apply" : "Validate"} successful"
+          def commentMessage = "Terraform modules validated successfully!"
           git.addCommentToPullRequest(commentMessage)
         }
 
