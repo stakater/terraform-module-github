@@ -59,7 +59,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
         stage('Notify') {
           def slackFields = []
           if (utils.isCD()) {
-            slackFields = [slack.createField("version", version, true)]
+            slackFields = [slack.createField("version", "${version}", true)]
           }
 
           slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, slackFields)
