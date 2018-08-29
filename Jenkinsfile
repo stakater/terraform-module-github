@@ -25,6 +25,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
             for dir in ${modulesDirectory}/*/
             do
               dir=\${dir%*/}
+              terraform init
               terraform validate \${dir}
             done
           """
@@ -60,7 +61,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
           if (utils.isCD()) {
             slackFields = [slack.createField("version", version, true)]
           }
-          
+
           slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, slackFields)
 
           def commentMessage = "Terraform modules validated successfully!"
