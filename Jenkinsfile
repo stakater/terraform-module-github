@@ -26,7 +26,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
             do
               dir=\${dir%*/}
               terraform init \${dir}
-              terraform validate \${dir}
+              #terraform validate \${dir}
             done
           """
         }
