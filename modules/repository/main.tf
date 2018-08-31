@@ -16,9 +16,9 @@ resource "github_repository" "repository" {
 }
 
 resource "github_branch_protection" "repository_master_with_status_checks" {
-  count = "${var.require_status_checks}"
+  count = "${var.enable_branch_protection && var.require_status_checks ? 1 : 0}"
   repository = "${var.name}"
-  branch = "master"
+  branch = "${var.protected_branch_name}"
   enforce_admins = "${var.enforce_admins}"
 
   required_status_checks {
@@ -35,9 +35,9 @@ resource "github_branch_protection" "repository_master_with_status_checks" {
 }
 
 resource "github_branch_protection" "repository_master" {
-  count = "${1 - var.require_status_checks}"
+  count = "${var.enable_branch_protection && !var.require_status_checks ? 1 : 0}"
   repository = "${var.name}"
-  branch = "master"
+  branch = "${var.protected_branch_name}"
   enforce_admins = "${var.enforce_admins}"
 
   required_pull_request_reviews {
@@ -67,6 +67,7 @@ resource "github_repository_webhook" "slack_webhook" {
 }
 
 resource "github_team_repository" "restricted_access" {
+  count = "${length(var.team_id) != 0 ? 1 : 0}"
   team_id = "${var.team_id}"
   repository = "${github_repository.repository.name}"
   permission = "${var.team_permission}"
