@@ -12,6 +12,15 @@ locals {
 
 variable "team_id" {
   description = "ID of the team that should own the repo, gives push access"
+  default = ""
+}
+
+variable "enable_branch_protection" {
+  default = true
+}
+
+variable "protected_branch_name" {
+  default = "master"
 }
 
 variable "enforce_admins" {
