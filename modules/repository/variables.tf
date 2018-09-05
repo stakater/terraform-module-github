@@ -75,7 +75,7 @@ variable "has_downloads" {
 }
 
 locals {
-  default_topics = ["stakater", "chart", "${replace(var.name, "_", "-")}"]
+  default_topics = ["stakater", "chart", "${lower(replace(replace(var.name, "_", "-"), ".", "-"))}"]
   topics         = "${concat(local.default_topics, var.additional_topics)}"
 }
 
