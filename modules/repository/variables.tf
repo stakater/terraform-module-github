@@ -79,6 +79,11 @@ locals {
   topics         = "${concat(local.default_topics, var.additional_topics)}"
 }
 
+variable "topics" {
+  type    = "list"
+  default = []
+}
+
 variable "additional_topics" {
   type    = "list"
   default = []
