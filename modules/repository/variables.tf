@@ -75,7 +75,7 @@ variable "has_downloads" {
 }
 
 locals {
-  topics = ["${compact(split(",", lower(replace(replace(replace(join(",", var.topics), " ", "-"), "_", "-"), ".", "-"))))}"]
+  topics = ["${compact(split(",", lower(replace(join(",", var.topics), "/\\s|_|\\./", "-"))))}"]
 }
 
 variable "topics" {
