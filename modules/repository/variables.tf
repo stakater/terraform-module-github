@@ -86,19 +86,8 @@ variable "topics" {
 variable "private" {
   default = false
 }
-variable "enable_slack_notifications" {
-  default = false
-}
 
-variable "slack_webhook_url" {
-  default = ""
-}
-
-variable "slack_webhook_events" {
+variable "webhooks" {
+  type = "list"
   default = []
-}
-
-locals {
-  default_slack_webhook_events = ["pull_request", "pull_request_review"]
-  slack_webhook_events = ["${split(",", length(var.slack_webhook_events) == 0 ? join(",", local.default_slack_webhook_events) : join(",", var.slack_webhook_events))}"]
 }

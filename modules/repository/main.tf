@@ -48,20 +48,21 @@ resource "github_branch_protection" "repository_master" {
   depends_on = ["github_repository.repository"]
 }
 
-resource "github_repository_webhook" "slack_webhook" {
-  count = "${var.enable_slack_notifications}"
+resource "github_repository_webhook" "webhook" {
+  count = "${length(var.webhooks)}"
   repository = "${var.name}"
-  name = "web"
+  name = "${lookup(var.webhooks[count.index], "type", "web")}"
 
   configuration {
-    url          = "${var.slack_webhook_url}"
-    content_type = "json"
-    insecure_ssl = false
+    url          = "${lookup(var.webhooks[count.index], "url")}"
+    content_type = "${lookup(var.webhooks[count.index], "content_type", "json")}"
+    insecure_ssl = "${lookup(var.webhooks[count.index], "insecure_ssl", false)}"
+    secret = "${lookup(var.webhooks[count.index], "secret", "")}"
   }
 
-  active = true
+  active = "${lookup(var.webhooks[count.index], "active", true)}"
 
-  events = ["${local.slack_webhook_events}"]
+  events = ["${split(",", lookup(var.webhooks[count.index], "events", ""))}"]
 
   depends_on = ["github_repository.repository"]
 }
