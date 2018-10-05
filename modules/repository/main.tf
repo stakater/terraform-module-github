@@ -1,7 +1,7 @@
 resource "github_repository" "repository" {
   name = "${var.name}"
   description  = "${local.description}"
-  
+
   private = "${var.private}"
   has_issues = true
   has_wiki = "${var.has_wiki}"
@@ -13,6 +13,9 @@ resource "github_repository" "repository" {
   auto_init = true
   archived = "${var.archived}"
   topics = "${local.topics}"
+  homepage_url = "${var.homepage_url}"
+
+  license_template  = "${local.license_template}"
 }
 
 resource "github_branch_protection" "repository_master_with_status_checks" {
