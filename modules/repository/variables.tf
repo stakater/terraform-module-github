@@ -10,6 +10,19 @@ locals {
 }
 
 
+variable "homepage_url" {
+  default = "http://stakater.com"
+}
+
+variable "license_template" {
+  default = ""
+}
+
+locals {
+  license_template = "${var.private == "false" ? "apache-2.0" : ""}"
+}
+
+
 variable "team_id" {
   description = "ID of the team that should own the repo, gives push access"
   default = ""
