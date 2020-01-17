@@ -7,6 +7,7 @@ resource "github_membership" "user" {
 # Github User Team Membership
 resource "github_team_membership" "user_team" {
   count = "${var.team_id == "" ? 0 : 1}"
+  depends_on = ["github_membership.user" ]
   team_id  = "${var.team_id}"
   username = "${var.username}"
   role     = "${var.role}"
