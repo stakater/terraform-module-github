@@ -54,7 +54,7 @@ resource "github_branch_protection" "repository_master" {
 resource "github_repository_webhook" "webhook" {
   count = "${length(var.webhooks)}"
   repository = "${var.name}"
-  name = "${lookup(var.webhooks[count.index], "type", "web")}"
+  #name = "${lookup(var.webhooks[count.index], "type", "web")}"
 
   configuration {
     url          = "${lookup(var.webhooks[count.index], "url")}"
